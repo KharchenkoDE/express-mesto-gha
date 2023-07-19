@@ -9,6 +9,11 @@ const getUsers = (req, res) => {
 const getUser = (req, res) => {
   const { id } = req.params;
   User.findById(id)
+    .orFail(() => {
+      const error = new Error('Пользователь не найден');
+      error.statusCode = 404;
+      throw error;
+    })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {

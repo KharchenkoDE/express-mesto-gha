@@ -26,6 +26,11 @@ const createCard = (req, res) => {
 const deleteCard = (req, res) => {
   const { id } = req.params;
   Card.findById(id)
+    .orFail(() => {
+      const error = new Error('Карточка не найдена');
+      error.statusCode = 404;
+      throw error;
+    })
     .then((card) => Card.deleteOne(card)
       .then(() => res.send({ data: card })))
     .catch((err) => {
@@ -46,6 +51,11 @@ const updateLike = (req, res, method) => {
     { [method]: { likes: req.user._id } },
     { new: true },
   )
+    .orFail(() => {
+      const error = new Error('Некорректный id карточки');
+      error.statusCode = 404;
+      throw error;
+    })
     .then((card) => {
       res.send(card);
     })
