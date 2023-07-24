@@ -84,7 +84,13 @@ const updateUserData = (res, req, next, updatedData) => {
   User.findByIdAndUpdate(_id, updatedData, { new: true, runValidators: true })
     .orFail(() => new NotFoundError('Пользователь не найден'))
     .then((user) => res.send(user))
-    .catch(next);
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        next(new BadRequestError(error.message));
+      } else {
+        next(error);
+      }
+    });
 };
 
 const updateUserInfo = (req, res, next) => updateUserData(
